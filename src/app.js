@@ -75,8 +75,7 @@ app.delete("/repositories/:id", (request, response) => {
   // delete the repository with this ID
   } else {
     repositories.splice((repoIndex), 1);
-    return response.status(204);
-//    return response.json(`repository ${repositories[repoIndex].title} was deleted`);
+    return response.status(204).json('');
   }
 });
 
@@ -95,8 +94,7 @@ app.post("/repositories/:id/like", (request, response) => {
   // update the repository with this ID
   } else {
     const likes = repositories[repoIndex].newLike();
-    return response.status(204);
-//    return response.json(`${repositories[repoIndex].title} repo now have ${likes} likes`);
+    return response.json(repositories[repoIndex]);
   }
 });
 
