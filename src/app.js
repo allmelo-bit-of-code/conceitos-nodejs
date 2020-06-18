@@ -11,35 +11,18 @@ const repositories = [];
 
 class Repo {
   constructor(title, url, techs) {
+    this.id = uuid(),
     this.title = title,
     this.url = url,
     this.techs = techs,
-    this.id = uuid(),
     this.likes = 0
   };
 
-  like() {
-    this.like += 1;
+  newLike() {
+    this.likes += 1;
+    return this.likes;
   };
 
-};
-
-function idStatusOnRepo(reqParam){
-  const { id } = reqParam;
-
-  if (!isUuid(id)){
-    response.status(400).json(`error: uuid ${id} is invalid`);
-    return false;
-  };
-
-  const repoIndex = repositories.findIndex( repo => repo.id === id );
-
-  if (repoIndex < 0) {
-    response.status(400).json(notFound(`error: uuid ${id} is not found`))
-    return false;
-  } else {
-    return repoIndex;
-  }
 };
 
 app.get("/repositories", (request, response) => {
@@ -54,11 +37,18 @@ app.post("/repositories", (request, response) => {
 });
 
 app.put("/repositories/:id", (request, response) => {
-  const repoIndex = idStatusOnRepo(request.params);
+  // check if ID is valid
+  const { id } = request.params;
+  if (!isUuid(id)){
+    return response.status(400).json(`error: uuid ${id} is invalid`);
+  };
 
-  if (!repoIndex){
-    return console.error('not alowed');
+  // check if our repo contain this valid ID
+  const repoIndex = repositories.findIndex( repo => repo.id === id );
+  if (repoIndex < 0) {
+    return response.status(400).json(`error: uuid ${id} is not found`);
 
+  // update the repository with this ID
   } else {
     const { title, url, techs } = request.body;
     
@@ -71,11 +61,43 @@ app.put("/repositories/:id", (request, response) => {
 });
 
 app.delete("/repositories/:id", (request, response) => {
-  // TODO
+  // check if ID is valid
+  const { id } = request.params;
+  if (!isUuid(id)){
+    return response.status(400).json(`error: uuid ${id} is invalid`);
+  };
+
+  // check if our repo contain this valid ID
+  const repoIndex = repositories.findIndex( repo => repo.id === id );
+  if (repoIndex < 0) {
+    return response.status(400).json(`error: uuid ${id} is not found`);
+
+  // delete the repository with this ID
+  } else {
+    repositories.splice((repoIndex), 1);
+    return response.status(204);
+//    return response.json(`repository ${repositories[repoIndex].title} was deleted`);
+  }
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  // check if ID is valid
+  const { id } = request.params;
+  if (!isUuid(id)){
+    return response.status(400).json(`error: uuid ${id} is invalid`);
+  };
+
+  // check if our repo contain this valid ID
+  const repoIndex = repositories.findIndex( repo => repo.id === id );
+  if (repoIndex < 0) {
+    return response.status(400).json(`error: uuid ${id} is not found`);
+
+  // update the repository with this ID
+  } else {
+    const likes = repositories[repoIndex].newLike();
+    return response.status(204);
+//    return response.json(`${repositories[repoIndex].title} repo now have ${likes} likes`);
+  }
 });
 
 module.exports = app;
